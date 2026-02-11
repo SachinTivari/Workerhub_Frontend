@@ -1,0 +1,100 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+}
+
+.main-content-full {
+  flex: 1;
+}
+
+/* Loader */
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+}
+
+.empty-state .icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.empty-state h3 {
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 25px;
+}
+
+/* Badges */
+.badge-available {
+  background: rgba(0, 230, 118, 0.15);
+  color: #00e676;
+  border: 1px solid rgba(0, 230, 118, 0.3);
+}
+
+.badge-busy {
+  background: rgba(255, 202, 40, 0.15);
+  color: #ffca28;
+  border: 1px solid rgba(255, 202, 40, 0.3);
+}
+
+.badge-offline {
+  background: rgba(255, 107, 107, 0.15);
+  color: #ff6b6b;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+/* Status badges */
+.status-pending {
+  background: rgba(255, 202, 40, 0.15);
+  color: #ffca28;
+}
+
+.status-confirmed {
+  background: rgba(0, 230, 118, 0.15);
+  color: #00e676;
+}
+
+.status-completed {
+  background: rgba(33, 150, 243, 0.15);
+  color: #2196f3;
+}
+
+.status-cancelled {
+  background: rgba(255, 107, 107, 0.15);
+  color: #ff6b6b;
+}
