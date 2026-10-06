@@ -22,13 +22,21 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.auth-logo {
+  height: 100px;
+  width: auto;
+  object-fit: contain;
+  margin: 0 auto 24px;
+  display: block;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+}
+
 .auth-header h1 {
-  font-size: 1.8rem;
-  margin-bottom: 8px;
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 2rem;
+  font-family: var(--font-display);
+  margin-bottom: 10px;
+  color: white;
+  letter-spacing: -0.02em;
 }
 
 .auth-header p {

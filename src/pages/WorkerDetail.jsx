@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { Frown, IndianRupee, MapPin, Star, Phone, ShieldCheck, Ban, Check, Shield } from 'lucide-react'
 import BookingModal from '../components/BookingModal'
 import { API_URL } from '../config'
 import './WorkerDetail.css'
@@ -64,7 +65,9 @@ function WorkerDetail() {
       <div className="worker-detail-page">
         <div className="container">
           <div className="empty-state">
-            <div className="icon">😕</div>
+            <div className="icon" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', color: 'rgba(255,255,255,0.4)' }}>
+              <Frown size={64} />
+            </div>
             <h3>Worker not found</h3>
             <button className="btn btn-primary" onClick={() => navigate('/workers')}>
               Browse Workers
@@ -105,28 +108,28 @@ function WorkerDetail() {
 
             <div className="worker-stats-grid">
               <div className="stat-card">
-                <span className="stat-icon">💰</span>
+                <span className="stat-icon bg-gradient-green"><IndianRupee size={24} /></span>
                 <div>
-                  <span className="stat-value">₹{worker.hourly_rate}</span>
+                  <span className="stat-value">₹{worker.daily_rate}</span>
                   <span className="stat-label">Per Day</span>
                 </div>
               </div>
               <div className="stat-card">
-                <span className="stat-icon">📍</span>
+                <span className="stat-icon bg-gradient-blue"><MapPin size={24} /></span>
                 <div>
                   <span className="stat-value">{worker.location}</span>
                   <span className="stat-label">Location</span>
                 </div>
               </div>
               <div className="stat-card">
-                <span className="stat-icon">⭐</span>
+                <span className="stat-icon bg-gradient-orange"><Star size={24} /></span>
                 <div>
                   <span className="stat-value">{worker.rating || '4.5'}</span>
                   <span className="stat-label">Rating</span>
                 </div>
               </div>
               <div className="stat-card">
-                <span className="stat-icon">📞</span>
+                <span className="stat-icon bg-gradient-purple"><Phone size={24} /></span>
                 <div>
                   <span className="stat-value">{worker.phone}</span>
                   <span className="stat-label">Contact</span>
@@ -160,7 +163,7 @@ function WorkerDetail() {
               <p>Get professional help for your project</p>
               
               <div className="price-display">
-                <span className="price">₹{worker.hourly_rate}</span>
+                <span className="price">₹{worker.daily_rate}</span>
                 <span className="price-unit">/day</span>
               </div>
 
@@ -168,18 +171,19 @@ function WorkerDetail() {
                 className="btn btn-primary btn-lg btn-block"
                 onClick={() => setShowBookingModal(true)}
                 disabled={worker.availability !== 'available'}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
                 {worker.availability === 'available' 
                   ? 'Book Now' 
                   : worker.availability === 'busy' 
-                    ? '🚫 Currently Unavailable' 
-                    : '⚫ Currently Offline'}
+                    ? <><Ban size={18} /> Currently Unavailable</> 
+                    : <><div className="status-dot offline-dot" style={{width: '10px', height: '10px'}}></div> Currently Offline</>}
               </button>
 
               <div className="booking-features">
-                <div className="feature">✓ Verified Profile</div>
-                <div className="feature">✓ Secure Booking</div>
-                <div className="feature">✓ Direct Contact</div>
+                <div className="feature"><Check size={16} /> Verified Profile</div>
+                <div className="feature"><Shield size={16} /> Secure Booking</div>
+                <div className="feature"><Phone size={16} /> Direct Contact</div>
               </div>
             </div>
 
@@ -187,7 +191,7 @@ function WorkerDetail() {
               <div className="trust-card">
                 <h4>Trust & Safety</h4>
                 <div className="trust-item verified">
-                  <span>✅</span>
+                  <span><ShieldCheck size={24} color="#00e676" /></span>
                   <div>
                     <strong>Aadhaar Verified</strong>
                     <p>Identity verified through Aadhaar</p>

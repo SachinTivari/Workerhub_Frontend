@@ -1,30 +1,47 @@
 .worker-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: var(--radius);
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+.worker-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .worker-card:hover {
-  transform: translateY(-5px);
-  border-color: var(--primary);
-  box-shadow: 0 20px 40px rgba(33, 150, 243, 0.15);
+  transform: translateY(-8px);
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), 0 0 60px rgba(99, 102, 241, 0.1);
+}
+
+.worker-card:hover::before {
+  opacity: 1;
 }
 
 .worker-card-header {
   position: relative;
-  padding: 25px;
-  background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(78, 205, 196, 0.1));
+  padding: 28px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(6, 182, 212, 0.06));
   display: flex;
   justify-content: center;
 }
 
 .worker-avatar {
-  width: 80px;
-  height: 80px;
+  width: 85px;
+  height: 85px;
   border-radius: 50%;
   background: var(--gradient);
   display: flex;
@@ -32,9 +49,11 @@
   justify-content: center;
   font-size: 2rem;
   font-weight: 700;
+  font-family: var(--font-display);
   color: #fff;
   overflow: hidden;
-  border: 3px solid rgba(255, 255, 255, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.3);
 }
 
 .worker-avatar img {
@@ -55,39 +74,44 @@
 }
 
 .badge-available {
-  background: rgba(0, 230, 118, 0.15);
-  color: #00e676;
-  border: 1px solid rgba(0, 230, 118, 0.3);
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
 }
 
 .badge-busy {
-  background: rgba(255, 202, 40, 0.15);
-  color: #ffca28;
-  border: 1px solid rgba(255, 202, 40, 0.3);
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
 }
 
 .badge-offline {
-  background: rgba(255, 107, 107, 0.15);
-  color: #ff6b6b;
-  border: 1px solid rgba(255, 107, 107, 0.3);
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .worker-card-body {
-  padding: 20px;
+  padding: 22px;
   flex: 1;
 }
 
 .worker-name {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 5px;
-  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-family: var(--font-display);
+  margin-bottom: 6px;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
 }
 
 .worker-category {
-  color: var(--primary);
+  color: var(--primary-light);
   font-size: 0.9rem;
-  margin-bottom: 15px;
+  font-weight: 500;
+  margin-bottom: 16px;
 }
 
 .worker-details {

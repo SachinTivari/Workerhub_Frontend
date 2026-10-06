@@ -40,7 +40,7 @@ function WorkerCard({ worker }) {
         <div className="worker-details">
           <div className="detail-item">
             <span className="icon">💰</span>
-            <span>₹{worker.hourly_rate}/day</span>
+            <span>₹{worker.daily_rate}/day</span>
           </div>
           <div className="detail-item">
             <span className="icon">📍</span>

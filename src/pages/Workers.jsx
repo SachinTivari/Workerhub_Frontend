@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 import WorkerCard from '../components/WorkerCard'
@@ -9,11 +9,7 @@ function Workers() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [workers, setWorkers] = useState([])
   const [categories, setCategories] = useState([])
-  const [locations, setLocations] = useState([])
   const [loading, setLoading] = useState(true)
-  const [locationSearch, setLocationSearch] = useState(searchParams.get('location') || '')
-  const [showLocationSuggestions, setShowLocationSuggestions] = useState(false)
-  const locationRef = useRef(null)
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || '',
     availability: searchParams.get('availability') || '',
@@ -22,18 +18,22 @@ function Workers() {
 
   useEffect(() => {
     fetchCategories()
-    fetchLocations()
-  }, [])
-
-  // Close location suggestions when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (locationRef.current && !locationRef.current.contains(event.target)) {
-        setShowLocationSuggestions(false)
+    
+    // Auto-detect location if none provided in URL
+    if (!filters.location) {
+      const detectLocation = async () => {
+        try {
+          const ipRes = await fetch('https://ipapi.co/json/')
+          const ipData = await ipRes.json()
+          if (ipData.city) {
+            handleFilterChange('location', ipData.city)
+          }
+        } catch (err) {
+          console.error("Location detection failed:", err)
+        }
       }
+      detectLocation()
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
   useEffect(() => {
@@ -49,25 +49,24 @@ function Workers() {
     }
   }
 
-  const fetchLocations = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/api/locations`)
-      setLocations(res.data)
-    } catch (error) {
-      console.error('Error fetching locations:', error)
-    }
-  }
-
   const fetchWorkers = async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams()
       if (filters.category) params.append('category', filters.category)
       if (filters.availability) params.append('availability', filters.availability)
-      if (filters.location) params.append('location', filters.location)
       
       const res = await axios.get(`${API_URL}/api/workers?${params}`)
-      setWorkers(res.data)
+      let fetchedWorkers = res.data
+      
+      // Filter by location on frontend since backend may not support location query
+      if (filters.location) {
+        fetchedWorkers = fetchedWorkers.filter(w => 
+          w.location && w.location.toLowerCase().includes(filters.location.toLowerCase())
+        )
+      }
+      
+      setWorkers(fetchedWorkers)
     } catch (error) {
       console.error('Error fetching workers:', error)
     } finally {
@@ -76,40 +75,22 @@ function Workers() {
   }
 
   const handleFilterChange = (key, value) => {
-    const newFilters = { ...filters, [key]: value }
-    setFilters(newFilters)
+    setFilters({ ...filters, [key]: value })
     
     // Update URL params
-    const params = {}
-    if (newFilters.category) params.category = newFilters.category
-    if (newFilters.location) params.location = newFilters.location
-    setSearchParams(params)
+    const newParams = new URLSearchParams(searchParams)
+    if (value) {
+      newParams.set(key, value)
+    } else {
+      newParams.delete(key)
+    }
+    setSearchParams(newParams)
   }
 
   const clearFilters = () => {
     setFilters({ category: '', availability: '', location: '' })
-    setLocationSearch('')
     setSearchParams({})
   }
-
-  const handleLocationSearch = (value) => {
-    setLocationSearch(value)
-    setShowLocationSuggestions(true)
-    // Apply filter after typing stops (debounce effect)
-    if (value.length >= 2 || value === '') {
-      handleFilterChange('location', value)
-    }
-  }
-
-  const selectLocation = (loc) => {
-    setLocationSearch(loc)
-    handleFilterChange('location', loc)
-    setShowLocationSuggestions(false)
-  }
-
-  const filteredLocations = locations.filter(loc => 
-    loc.toLowerCase().includes(locationSearch.toLowerCase())
-  )
 
   return (
     <div className="workers-page">
@@ -124,47 +105,35 @@ function Workers() {
 
         {/* Filters */}
         <div className="filters-section">
-          <div className="filters-grid">
-            <div className="filter-group" ref={locationRef}>
-              <label>📍 Location</label>
-              <div className="location-filter-wrapper">
-                <span className="location-icon">🔍</span>
-                <input
-                  type="text"
-                  placeholder="Search location..."
-                  value={locationSearch}
-                  onChange={(e) => handleLocationSearch(e.target.value)}
-                  onFocus={() => setShowLocationSuggestions(true)}
-                />
-                {showLocationSuggestions && filteredLocations.length > 0 && (
-                  <div className="location-suggestions">
-                    <div 
-                      className="location-suggestion-item"
-                      onClick={() => selectLocation('')}
-                    >
-                      📍 All Locations
-                    </div>
-                    {filteredLocations.map((loc, index) => (
-                      <div 
-                        key={index} 
-                        className={`location-suggestion-item ${filters.location === loc ? 'active' : ''}`}
-                        onClick={() => selectLocation(loc)}
-                      >
-                        📍 {loc}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+          {/* Location Filter */}
+          <div className="filter-group">
+            <label>Location</label>
+            <input
+              type="text"
+              value={filters.location}
+              onChange={(e) => handleFilterChange('location', e.target.value)}
+              placeholder="Enter city or area"
+              className="location-input"
+              style={{
+                width: '100%',
+                padding: '12px 15px',
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '8px',
+                color: 'white',
+                marginBottom: '20px'
+              }}
+            />
+          </div>
 
+          <div className="filters-grid">
             <div className="filter-group">
-              <label>💼 Category</label>
+              <label>Category</label>
               <select 
                 value={filters.category} 
                 onChange={(e) => handleFilterChange('category', e.target.value)}
               >
-                <option value="">All Categories</option>
+                <option value="">Select Category</option>
                 {categories.map((cat) => (
                   <option key={cat._id || cat.id} value={cat.name}>
                     {cat.icon} {cat.name}
@@ -174,28 +143,26 @@ function Workers() {
             </div>
 
             <div className="filter-group">
-              <label>🟢 Availability</label>
+              <label>Availability</label>
               <select 
                 value={filters.availability} 
                 onChange={(e) => handleFilterChange('availability', e.target.value)}
               >
-                <option value="">All Status</option>
-                <option value="available">✅ Available Now</option>
-                <option value="busy">🔴 Busy</option>
-                <option value="offline">⚫ Offline</option>
+                <option value="">All</option>
+                <option value="available">Available Now</option>
+                <option value="busy">Busy</option>
+                <option value="offline">Offline</option>
               </select>
             </div>
 
             <button className="btn btn-secondary clear-btn" onClick={clearFilters}>
-              ✕ Clear Filters
+              Clear Filters
             </button>
           </div>
 
           <div className="results-count">
             Found <span>{workers.length}</span> workers
-            {filters.location && ` in ${filters.location}`}
-            {filters.category && ` • ${filters.category}`}
-            {filters.availability && ` • ${filters.availability === 'available' ? 'Available' : filters.availability === 'busy' ? 'Busy' : 'Offline'}`}
+            {filters.category && ` in ${filters.category}`}
           </div>
         </div>
 

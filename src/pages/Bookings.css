@@ -124,21 +124,25 @@
 .status-pending {
   background: rgba(255, 202, 40, 0.15);
   color: #ffca28;
+  border: 1px solid rgba(255, 202, 40, 0.3);
 }
 
 .status-confirmed {
   background: rgba(0, 230, 118, 0.15);
   color: #00e676;
+  border: 1px solid rgba(0, 230, 118, 0.3);
 }
 
 .status-completed {
   background: rgba(33, 150, 243, 0.15);
   color: #2196f3;
+  border: 1px solid rgba(33, 150, 243, 0.3);
 }
 
 .status-cancelled {
   background: rgba(255, 107, 107, 0.15);
   color: #ff6b6b;
+  border: 1px solid rgba(255, 107, 107, 0.3);
 }
 
 .booking-details {

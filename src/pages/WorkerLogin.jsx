@@ -2,16 +2,21 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { API_URL } from '../config'
+import { useAuth } from '../context/AuthContext'
+import { Mail, Lock, LogIn } from 'lucide-react'
+import logo from '../assets/logo.png'
 import './Auth.css'
 
 function WorkerLogin() {
-  const navigate = useNavigate()
   const [formData, setFormData] = useState({
-    phone: '',
+    email: '',
     password: ''
   })
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  
+  const navigate = useNavigate()
+  const { login } = useAuth()
 
   const handleChange = (e) => {
     setFormData({
@@ -27,20 +32,26 @@ function WorkerLogin() {
 
     try {
       const res = await axios.post(`${API_URL}/api/workers/login`, formData)
+      
+      localStorage.setItem('token', res.data.token)
       localStorage.setItem('worker', JSON.stringify(res.data.worker))
-      window.location.href = '/worker-dashboard'
-    } catch (err) {
-      setError(err.response?.data?.error || 'Login failed. Please try again.')
+      login(res.data.worker)
+      navigate('/worker-dashboard')
+    } catch (error) {
+      setError(
+        error.response?.data?.message || 
+        'Login failed. Please check your credentials.'
+      )
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="auth-page worker-auth">
+    <div className="auth-page">
       <div className="auth-card">
         <div className="auth-header">
-          <div className="auth-icon">🔧</div>
+          <img src={logo} alt="WorkerHub Logo" className="auth-logo" />
           <h1>Worker Login</h1>
           <p>Login to manage your profile and bookings</p>
         </div>

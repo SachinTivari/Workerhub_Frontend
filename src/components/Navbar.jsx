@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { LogIn } from 'lucide-react'
+import logo from '../assets/logo.png'
+import NotificationBell from './NotificationBell'
 import './Navbar.css'
 
 function Navbar() {
@@ -27,8 +30,7 @@ function Navbar() {
     <nav className="navbar">
       <div className="container navbar-container">
         <Link to="/home" className="navbar-brand">
-          <span className="brand-icon">👷</span>
-          <span className="brand-text">WorkerHub</span>
+          <img src={logo} alt="WorkerHub" style={{ height: '65px', width: 'auto' }} />
         </Link>
 
         <button className="menu-toggle" onClick={() => setIsOpen(!isOpen)}>
@@ -55,15 +57,11 @@ function Navbar() {
               </Link>
             </li>
           )}
-          <li>
-            <Link to="/register" className={isActive('/register') ? 'active' : ''}>
-              Register as Worker
-            </Link>
-          </li>
           
           {user ? (
-            <li className="user-menu">
-              <div className="user-info">
+            <li className="user-menu" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <NotificationBell userId={user.id || user._id} isWorker={false} />
+              <Link to="/user/dashboard" className="user-info" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span className="user-avatar">
                   {user.photo_url ? (
                     <img src={user.photo_url} alt={user.name} />
@@ -72,18 +70,18 @@ function Navbar() {
                   )}
                 </span>
                 <span className="user-name">{user.name}</span>
-              </div>
+              </Link>
               <button className="btn btn-secondary btn-sm" onClick={handleLogout}>
                 Logout
               </button>
             </li>
           ) : (
             <li className="auth-buttons">
-              <Link to="/login" className="btn btn-secondary btn-sm">
-                Login
+              <Link to="/register" className="btn btn-secondary btn-sm">
+                Join as Worker
               </Link>
-              <Link to="/signup" className="btn btn-primary btn-sm">
-                Sign Up
+              <Link to="/get-started" className="btn btn-primary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                Sign In
               </Link>
             </li>
           )}

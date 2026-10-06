@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
+import { Lock, CalendarDays, Clock, MapPin, FileText, BookmarkX } from 'lucide-react'
 import { API_URL } from '../config'
 import './Bookings.css'
 
@@ -53,7 +54,9 @@ function Bookings() {
       <div className="bookings-page">
         <div className="container">
           <div className="login-required">
-            <div className="icon">🔐</div>
+            <div className="icon" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', color: 'rgba(255,255,255,0.8)' }}>
+              <Lock size={64} />
+            </div>
             <h2>Login Required</h2>
             <p>Please login to view your bookings</p>
             <div className="login-actions">
@@ -99,20 +102,20 @@ function Bookings() {
 
                 <div className="booking-details">
                   <div className="detail-row">
-                    <span className="detail-label">📅 Date</span>
+                    <span className="detail-label"><CalendarDays size={16} style={{ display: 'inline', verticalAlign: 'text-bottom', marginRight: '5px' }} /> Date</span>
                     <span className="detail-value">{formatDate(booking.booking_date)}</span>
                   </div>
                   <div className="detail-row">
-                    <span className="detail-label">🕐 Time</span>
+                    <span className="detail-label"><Clock size={16} style={{ display: 'inline', verticalAlign: 'text-bottom', marginRight: '5px' }} /> Time</span>
                     <span className="detail-value">{booking.booking_time}</span>
                   </div>
                   <div className="detail-row">
-                    <span className="detail-label">📍 Address</span>
+                    <span className="detail-label"><MapPin size={16} style={{ display: 'inline', verticalAlign: 'text-bottom', marginRight: '5px' }} /> Address</span>
                     <span className="detail-value">{booking.address}</span>
                   </div>
                   {booking.work_description && (
                     <div className="detail-row">
-                      <span className="detail-label">📝 Work</span>
+                      <span className="detail-label"><FileText size={16} style={{ display: 'inline', verticalAlign: 'text-bottom', marginRight: '5px' }} /> Work</span>
                       <span className="detail-value">{booking.work_description}</span>
                     </div>
                   )}
@@ -129,7 +132,9 @@ function Bookings() {
           </div>
         ) : (
           <div className="empty-state">
-            <div className="icon">📋</div>
+            <div className="icon" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', color: 'rgba(255,255,255,0.4)' }}>
+              <BookmarkX size={64} />
+            </div>
             <h3>No bookings yet</h3>
             <p>Start by booking a skilled worker for your needs</p>
             <Link to="/workers" className="btn btn-primary">

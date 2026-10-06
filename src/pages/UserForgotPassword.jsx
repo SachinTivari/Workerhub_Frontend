@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { CheckCircle } from 'lucide-react'
+import logo from '../assets/logo.png'
 import { API_URL } from '../config'
 import './Auth.css'
 
@@ -88,7 +90,9 @@ function UserForgotPassword() {
       <div className="auth-page">
         <div className="auth-card">
           <div className="auth-header">
-            <div className="auth-icon">✅</div>
+            <div className="auth-icon" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', color: '#00e676' }}>
+              <CheckCircle size={64} />
+            </div>
             <h1>Password Reset Successful!</h1>
             <p>Your password has been changed successfully</p>
           </div>
@@ -109,7 +113,9 @@ function UserForgotPassword() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-header">
-          <div className="auth-icon">🔑</div>
+          <div className="auth-logo" style={{ display: 'flex', justifyContent: 'center' }}>
+            <img src={logo} alt="WorkerHub Logo" style={{ height: '100px', marginBottom: '20px' }} />
+          </div>
           <h1>Forgot Password</h1>
           <p>
             {step === 1 

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import WorkerCard from '../components/WorkerCard'
 import { API_URL } from '../config'
+import logo from '../assets/logo.png'
 import './Home.css'
 
 function Home() {
@@ -25,10 +26,33 @@ function Home() {
   ]
 
   useEffect(() => {
-    fetchData()
+    const user = JSON.parse(localStorage.getItem('user') || 'null')
+    if (user) {
+      if (user.role === 'admin') navigate('/admin/dashboard')
+      else if (user.role === 'worker') navigate('/worker-dashboard')
+      else navigate('/user/dashboard')
+      return
+    }
+
+    const initData = async () => {
+      let detectedLocation = ''
+      try {
+        const ipRes = await fetch('https://ipapi.co/json/')
+        const ipData = await ipRes.json()
+        if (ipData.city) {
+          detectedLocation = ipData.city
+          setSearchLocation(detectedLocation)
+        }
+      } catch (err) {
+        console.error("Location detection failed:", err)
+      }
+      fetchData(detectedLocation)
+    }
+    
+    initData()
   }, [])
 
-  const fetchData = async () => {
+  const fetchData = async (userCity) => {
     try {
       const workersRes = await axios.get(`${API_URL}/api/workers`)
       const workers = workersRes.data
@@ -47,7 +71,16 @@ function Home() {
       setServiceCounts(counts)
       
       // Get featured workers
-      setFeaturedWorkers(workers.filter(w => w.availability === 'available').slice(0, 4))
+      let locationWorkers = workers
+      if (userCity) {
+        const filtered = workers.filter(w => w.location && w.location.toLowerCase().includes(userCity.toLowerCase()))
+        // If workers exist in the detected city, show them. Otherwise fallback to all workers.
+        if (filtered.length > 0) {
+          locationWorkers = filtered
+        }
+      }
+      
+      setFeaturedWorkers(locationWorkers.filter(w => w.availability === 'available').slice(0, 4))
     } catch (error) {
       console.error('Error fetching data:', error)
     } finally {
@@ -357,9 +390,10 @@ function Home() {
         <div className="container">
           <div className="footer-content">
             <div className="footer-brand">
-              <span className="brand-icon">👷</span>
-              <span className="brand-text">WorkerHub</span>
-              <p>Connecting skilled workers with customers since 2024</p>
+              <div className="brand-logo-container" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
+                <img src={logo} alt="WorkerHub Logo" style={{ height: '64px', width: 'auto' }} />
+              </div>
+              <p>India's #1 platform for finding skilled workers for any job, anywhere, anytime.</p>
             </div>
             <div className="footer-links">
               <Link to="/workers">Find Workers</Link>

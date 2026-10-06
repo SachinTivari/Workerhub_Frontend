@@ -1,7 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { 
+  ClipboardList, CheckCircle, Award, IndianRupee, 
+  Phone, Mail, Briefcase, MapPin, Star, ShieldCheck, 
+  Calendar, Clock, FileText, Check, X,
+  User, LayoutDashboard
+} from 'lucide-react'
 import { API_URL } from '../config'
+import NotificationBell from '../components/NotificationBell'
 import './WorkerDashboard.css'
 
 function WorkerDashboard() {
@@ -10,7 +17,7 @@ function WorkerDashboard() {
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
-  const [activeTab, setActiveTab] = useState('profile')
+  const [activeTab, setActiveTab] = useState('dashboard')
 
   useEffect(() => {
     const storedWorker = localStorage.getItem('worker')
@@ -20,9 +27,23 @@ function WorkerDashboard() {
     }
     const workerData = JSON.parse(storedWorker)
     setWorker(workerData)
-    fetchBookings(workerData.id)
-    setLoading(false)
+    fetchLatestWorker(workerData.id || workerData._id)
+    fetchBookings(workerData.id || workerData._id)
   }, [navigate])
+
+  const fetchLatestWorker = async (workerId) => {
+    try {
+      const res = await axios.get(`${API_URL}/api/workers/${workerId}`)
+      if (res.data) {
+        setWorker(res.data)
+        localStorage.setItem('worker', JSON.stringify(res.data))
+      }
+    } catch (error) {
+      console.error('Error fetching worker data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const fetchBookings = async (workerId) => {
     try {
@@ -36,7 +57,8 @@ function WorkerDashboard() {
   const updateAvailability = async (newStatus) => {
     setUpdating(true)
     try {
-      const res = await axios.patch(`${API_URL}/api/workers/${worker.id}`, {
+      const workerId = worker.id || worker._id;
+      const res = await axios.patch(`${API_URL}/api/workers/${workerId}`, {
         availability: newStatus
       })
       const updatedWorker = res.data.worker
@@ -54,10 +76,11 @@ function WorkerDashboard() {
     try {
       await axios.patch(`${API_URL}/api/bookings/${bookingId}`, { status })
       // Refresh bookings
-      fetchBookings(worker.id)
+      const workerId = worker.id || worker._id;
+      fetchBookings(workerId)
       // If completed or cancelled, availability will be updated by backend
       if (status === 'completed' || status === 'cancelled') {
-        const res = await axios.get(`${API_URL}/api/workers/${worker.id}`)
+        const res = await axios.get(`${API_URL}/api/workers/${workerId}`)
         setWorker(prev => ({ ...prev, availability: res.data.availability }))
         localStorage.setItem('worker', JSON.stringify({ ...worker, availability: res.data.availability }))
       }
@@ -106,10 +129,10 @@ function WorkerDashboard() {
   return (
     <div className="worker-dashboard">
       {/* Header */}
-      <div className="dashboard-header">
+      <div className="worker-dash-header">
         <div className="container">
-          <div className="header-content">
-            <div className="worker-info">
+          <div className="worker-header-content">
+            <div className="worker-profile-info">
               <div className="worker-avatar-large">
                 {worker.photo_url ? (
                   <img src={worker.photo_url} alt={worker.name} />
@@ -120,45 +143,55 @@ function WorkerDashboard() {
               <div className="worker-details">
                 <h1>{worker.name}</h1>
                 <p className="worker-category">{worker.category}</p>
-                <p className="worker-location">📍 {worker.location}</p>
+                <p className="worker-location"><MapPin size={16} style={{ display: 'inline', verticalAlign: 'text-bottom' }}/> {worker.location}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '8px', color: '#fcd34d' }}>
+                  <Star size={16} fill="#fcd34d" /> 
+                  <span style={{ fontWeight: 'bold' }}>{worker.rating || 0}</span>
+                  <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem', marginLeft: '5px' }}>({worker.total_reviews || 0} Reviews)</span>
+                </div>
               </div>
             </div>
-            <button className="btn btn-secondary" onClick={handleLogout}>
-              Logout
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <NotificationBell userId={worker.id || worker._id} isWorker={true} />
+              <button className="btn btn-secondary" onClick={handleLogout}>
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="container dashboard-content">
+      <div className="container worker-dashboard-content">
+        {activeTab === 'dashboard' && (
+          <>
         {/* Quick Stats */}
-        <div className="stats-grid">
-          <div className="stat-card">
-            <span className="stat-icon">📋</span>
-            <div className="stat-info">
-              <span className="stat-number">{pendingBookings.length}</span>
-              <span className="stat-label">Pending</span>
+        <div className="worker-stats-grid">
+          <div className="worker-stat-card">
+            <span className="worker-stat-icon bg-gradient-orange"><ClipboardList size={28} /></span>
+            <div className="worker-stat-info">
+              <span className="worker-stat-number">{pendingBookings.length}</span>
+              <span className="worker-stat-label">Pending</span>
             </div>
           </div>
-          <div className="stat-card">
-            <span className="stat-icon">✅</span>
-            <div className="stat-info">
-              <span className="stat-number">{confirmedBookings.length}</span>
-              <span className="stat-label">Confirmed</span>
+          <div className="worker-stat-card">
+            <span className="worker-stat-icon bg-gradient-blue"><CheckCircle size={28} /></span>
+            <div className="worker-stat-info">
+              <span className="worker-stat-number">{confirmedBookings.length}</span>
+              <span className="worker-stat-label">Confirmed</span>
             </div>
           </div>
-          <div className="stat-card">
-            <span className="stat-icon">🏆</span>
-            <div className="stat-info">
-              <span className="stat-number">{completedBookings.length}</span>
-              <span className="stat-label">Completed</span>
+          <div className="worker-stat-card">
+            <span className="worker-stat-icon bg-gradient-teal"><Award size={28} /></span>
+            <div className="worker-stat-info">
+              <span className="worker-stat-number">{completedBookings.length}</span>
+              <span className="worker-stat-label">Completed</span>
             </div>
           </div>
-          <div className="stat-card">
-            <span className="stat-icon">💰</span>
-            <div className="stat-info">
-              <span className="stat-number">₹{worker.hourly_rate}</span>
-              <span className="stat-label">Per Day</span>
+          <div className="worker-stat-card">
+            <span className="worker-stat-icon bg-gradient-green"><IndianRupee size={28} /></span>
+            <div className="worker-stat-info">
+              <span className="worker-stat-number">₹{worker.daily_rate}</span>
+              <span className="worker-stat-label">Per Day</span>
             </div>
           </div>
         </div>
@@ -172,7 +205,7 @@ function WorkerDashboard() {
               onClick={() => updateAvailability('available')}
               disabled={updating}
             >
-              <span className="avail-icon">🟢</span>
+              <span className="avail-icon"><div className="status-dot available-dot"></div></span>
               <span>Available</span>
             </button>
             <button 
@@ -180,7 +213,7 @@ function WorkerDashboard() {
               onClick={() => updateAvailability('busy')}
               disabled={updating}
             >
-              <span className="avail-icon">🟡</span>
+              <span className="avail-icon"><div className="status-dot busy-dot"></div></span>
               <span>Busy</span>
             </button>
             <button 
@@ -188,26 +221,37 @@ function WorkerDashboard() {
               onClick={() => updateAvailability('offline')}
               disabled={updating}
             >
-              <span className="avail-icon">🔴</span>
+              <span className="avail-icon"><div className="status-dot offline-dot"></div></span>
               <span>Offline</span>
             </button>
           </div>
           {updating && <p className="updating-text">Updating...</p>}
         </div>
+          </>
+        )}
 
         {/* Tabs */}
-        <div className="dashboard-tabs">
+        <div className="worker-dashboard-tabs bottom-nav-menu">
           <button 
-            className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
-            onClick={() => setActiveTab('profile')}
+            className={`tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dashboard')}
           >
-            Profile
+            <LayoutDashboard size={20} className="nav-icon" />
+            <span>Dashboard</span>
           </button>
           <button 
             className={`tab-btn ${activeTab === 'bookings' ? 'active' : ''}`}
             onClick={() => setActiveTab('bookings')}
           >
-            Bookings ({bookings.length})
+            <Calendar size={20} className="nav-icon" />
+            <span>Bookings</span>
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
+            onClick={() => setActiveTab('profile')}
+          >
+            <User size={20} className="nav-icon" />
+            <span>Profile</span>
           </button>
         </div>
 
@@ -218,34 +262,34 @@ function WorkerDashboard() {
               <h3>Profile Information</h3>
               <div className="profile-details">
                 <div className="detail-row">
-                  <span className="label">📞 Phone</span>
+                  <span className="label"><Phone size={16} /> Phone</span>
                   <span className="value">{worker.phone}</span>
                 </div>
                 {worker.email && (
                   <div className="detail-row">
-                    <span className="label">📧 Email</span>
+                    <span className="label"><Mail size={16} /> Email</span>
                     <span className="value">{worker.email}</span>
                   </div>
                 )}
                 <div className="detail-row">
-                  <span className="label">💼 Category</span>
+                  <span className="label"><Briefcase size={16} /> Category</span>
                   <span className="value">{worker.category}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="label">💰 Daily Rate</span>
-                  <span className="value">₹{worker.hourly_rate}</span>
+                  <span className="label"><IndianRupee size={16} /> Daily Rate</span>
+                  <span className="value">₹{worker.daily_rate}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="label">📍 Location</span>
+                  <span className="label"><MapPin size={16} /> Location</span>
                   <span className="value">{worker.location || 'Not set'}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="label">⭐ Rating</span>
+                  <span className="label"><Star size={16} /> Rating</span>
                   <span className="value">{worker.rating || '4.5'} / 5</span>
                 </div>
                 {worker.aadhaar_verified && (
                   <div className="detail-row verified">
-                    <span className="label">✅ Aadhaar</span>
+                    <span className="label"><ShieldCheck size={16} /> Aadhaar</span>
                     <span className="value">Verified</span>
                   </div>
                 )}
@@ -271,10 +315,10 @@ function WorkerDashboard() {
         )}
 
         {activeTab === 'bookings' && (
-          <div className="bookings-section">
+          <div className="worker-bookings-section">
             {bookings.length === 0 ? (
               <div className="empty-state">
-                <div className="icon">📋</div>
+                <div className="icon"><ClipboardList size={48} /></div>
                 <h3>No bookings yet</h3>
                 <p>When customers book you, they'll appear here</p>
               </div>
@@ -285,7 +329,7 @@ function WorkerDashboard() {
                     <div className="booking-header">
                       <div className="customer-info">
                         <h4>{booking.customer_name}</h4>
-                        <p>📞 {booking.customer_phone}</p>
+                        <p><Phone size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }}/> {booking.customer_phone}</p>
                       </div>
                       <span className={`booking-status ${getStatusClass(booking.status)}`}>
                         {booking.status}
@@ -293,21 +337,21 @@ function WorkerDashboard() {
                     </div>
                     <div className="booking-details">
                       <div className="detail">
-                        <span>📅</span>
+                        <span><Calendar size={16} /></span>
                         <span>{formatDate(booking.booking_date)}</span>
                       </div>
                       <div className="detail">
-                        <span>🕐</span>
+                        <span><Clock size={16} /></span>
                         <span>{booking.booking_time}</span>
                       </div>
                       <div className="detail">
-                        <span>📍</span>
+                        <span><MapPin size={16} /></span>
                         <span>{booking.address}</span>
                       </div>
                     </div>
                     {booking.notes && (
                       <div className="booking-notes">
-                        <p>📝 {booking.notes}</p>
+                        <p><FileText size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }}/> {booking.notes}</p>
                       </div>
                     )}
                     {booking.status === 'pending' && (
@@ -315,14 +359,16 @@ function WorkerDashboard() {
                         <button 
                           className="btn btn-success btn-sm"
                           onClick={() => updateBookingStatus(booking._id, 'confirmed')}
+                          style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
                         >
-                          ✅ Accept
+                          <Check size={16} /> Accept
                         </button>
                         <button 
                           className="btn btn-danger btn-sm"
                           onClick={() => updateBookingStatus(booking._id, 'cancelled')}
+                          style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
                         >
-                          ❌ Decline
+                          <X size={16} /> Decline
                         </button>
                       </div>
                     )}
@@ -331,8 +377,9 @@ function WorkerDashboard() {
                         <button 
                           className="btn btn-primary btn-sm"
                           onClick={() => updateBookingStatus(booking._id, 'completed')}
+                          style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
                         >
-                          🏆 Mark Completed
+                          <Award size={16} /> Mark Completed
                         </button>
                       </div>
                     )}

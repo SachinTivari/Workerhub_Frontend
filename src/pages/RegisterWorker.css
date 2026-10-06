@@ -1,30 +1,44 @@
-.register-page {
-  padding: 40px 0 80px;
+.register-container {
+  min-height: calc(100vh - 70px);
+  padding: 3rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background-color: var(--bg-dark);
 }
 
 .register-card {
-  max-width: 700px;
-  margin: 0 auto;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 800px;
   overflow: hidden;
+  position: relative;
 }
 
 .register-header {
-  padding: 40px;
-  background: linear-gradient(135deg, rgba(33, 150, 243, 0.15), rgba(78, 205, 196, 0.15));
+  padding: 2.5rem 2rem;
   text-align: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-light);
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+}
+
+.auth-logo {
+  height: 100px;
+  width: auto;
+  object-fit: contain;
+  margin: 0 auto 24px;
+  display: block;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
 }
 
 .register-header h1 {
-  font-size: 2rem;
+  font-size: 1.8rem;
+  font-weight: 700;
   margin-bottom: 10px;
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: white;
 }
 
 .register-header p {

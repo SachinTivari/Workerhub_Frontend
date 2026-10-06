@@ -10,6 +10,7 @@ function RegisterWorker() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [fetchingLocation, setFetchingLocation] = useState(false)
   
   const [formData, setFormData] = useState({
     name: '',
@@ -18,7 +19,7 @@ function RegisterWorker() {
     password: '',
     confirmPassword: '',
     category: '',
-    hourly_rate: '',
+    daily_rate: '',
     location: '',
     bio: '',
     skills: '',
@@ -46,6 +47,42 @@ function RegisterWorker() {
 
   const validateAadhaar = (aadhaar) => {
     return /^\d{12}$/.test(aadhaar)
+  }
+
+  const fetchLocation = () => {
+    if (!navigator.geolocation) {
+      setError('Geolocation is not supported by your browser')
+      return
+    }
+    
+    setFetchingLocation(true)
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords
+          const response = await axios.get(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+          )
+          
+          if (response.data && response.data.address) {
+            const { city, town, village, county, state_district, state } = response.data.address
+            const area = city || town || village || county || state_district || ''
+            const locationStr = area ? `${area}${state ? `, ${state}` : ''}` : 'Unknown Location'
+            setFormData(prev => ({ ...prev, location: locationStr }))
+          } else {
+            setError('Could not detect location name')
+          }
+        } catch (err) {
+          setError('Failed to fetch location details')
+        } finally {
+          setFetchingLocation(false)
+        }
+      },
+      (err) => {
+        setError('Location permission denied or unavailable')
+        setFetchingLocation(false)
+      }
+    )
   }
 
   const handleSubmit = async (e) => {
@@ -161,14 +198,27 @@ function RegisterWorker() {
                 </div>
                 <div className="form-group">
                   <label>Location *</label>
-                  <input
-                    type="text"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleChange}
-                    placeholder="City, Area"
-                    required
-                  />
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <input
+                      type="text"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleChange}
+                      placeholder="City, Area"
+                      required
+                      style={{ flex: 1 }}
+                    />
+                    <button 
+                      type="button" 
+                      onClick={fetchLocation} 
+                      className="btn btn-secondary" 
+                      disabled={fetchingLocation}
+                      style={{ padding: '0 15px', whiteSpace: 'nowrap' }}
+                      title="Detect my current location"
+                    >
+                      {fetchingLocation ? 'Detecting...' : '📍 Detect'}
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -240,8 +290,8 @@ function RegisterWorker() {
                   <label>Daily Rate (₹) *</label>
                   <input
                     type="number"
-                    name="hourly_rate"
-                    value={formData.hourly_rate}
+                    name="daily_rate"
+                    value={formData.daily_rate}
                     onChange={handleChange}
                     placeholder="Enter daily rate"
                     min="200"

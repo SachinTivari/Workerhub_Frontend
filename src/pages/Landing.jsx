@@ -1,7 +1,21 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Wrench, User } from 'lucide-react'
+import logo from '../assets/logo.png'
 import './Landing.css'
 
 function Landing() {
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') || 'null')
+    if (user) {
+      if (user.role === 'admin') navigate('/admin/dashboard')
+      else if (user.role === 'worker') navigate('/worker-dashboard')
+      else navigate('/user/dashboard')
+    }
+  }, [navigate])
+
   return (
     <div className="landing-page">
       {/* Background Animation */}
@@ -15,10 +29,7 @@ function Landing() {
       <div className="landing-container">
         {/* Logo & Title */}
         <div className="landing-header">
-          <div className="landing-logo">
-            <span className="logo-icon">👷</span>
-            <span className="logo-text">WorkerHub</span>
-          </div>
+          <img src={logo} alt="WorkerHub Logo" className="landing-logo-img" style={{ height: '100px', width: 'auto', marginBottom: '20px', display: 'block', margin: '0 auto 20px', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.3))' }} />
           <h1 className="landing-title">
             Connect. Work. <span>Earn.</span>
           </h1>
@@ -34,8 +45,8 @@ function Landing() {
           <div className="role-cards">
             {/* Worker Card */}
             <Link to="/register" className="role-card worker-card">
-              <div className="role-icon-wrapper">
-                <span className="role-icon">🔧</span>
+              <div className="role-icon-wrapper" style={{ background: 'linear-gradient(135deg, #ec4899, #f43f5e)', color: 'white' }}>
+                <Wrench size={32} />
               </div>
               <h3>Skilled Worker</h3>
               <p>Mason, Carpenter, Plumber, Electrician, Painter, Helper</p>
@@ -53,8 +64,8 @@ function Landing() {
 
             {/* User Card */}
             <Link to="/signup" className="role-card user-card">
-              <div className="role-icon-wrapper">
-                <span className="role-icon">👤</span>
+              <div className="role-icon-wrapper" style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)', color: 'white' }}>
+                <User size={32} />
               </div>
               <h3>Customer / User</h3>
               <p>Looking to hire skilled workers for your projects</p>
@@ -66,25 +77,6 @@ function Landing() {
               </ul>
               <div className="role-cta">
                 Register as User
-                <span className="arrow">→</span>
-              </div>
-            </Link>
-
-            {/* Guest Card */}
-            <Link to="/home" className="role-card guest-card">
-              <div className="role-icon-wrapper">
-                <span className="role-icon">👁️</span>
-              </div>
-              <h3>Just Browsing</h3>
-              <p>Explore available workers and services</p>
-              <ul className="role-benefits">
-                <li>✅ View all workers</li>
-                <li>✅ Check availability</li>
-                <li>✅ See rates & skills</li>
-                <li>✅ Register later</li>
-              </ul>
-              <div className="role-cta">
-                Continue as Guest
                 <span className="arrow">→</span>
               </div>
             </Link>

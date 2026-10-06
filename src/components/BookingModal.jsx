@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
+import { Lock } from 'lucide-react'
 import { API_URL } from '../config'
 import './BookingModal.css'
 
@@ -63,7 +64,9 @@ function BookingModal({ worker, onClose, onSuccess }) {
         <div className="modal-content login-prompt" onClick={e => e.stopPropagation()}>
           <button className="modal-close" onClick={onClose}>×</button>
           <div className="login-prompt-content">
-            <div className="login-icon">🔐</div>
+            <div className="login-icon" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', color: 'rgba(255,255,255,0.8)' }}>
+              <Lock size={64} />
+            </div>
             <h2>Login Required</h2>
             <p>Please login or sign up to book this worker</p>
             <div className="login-prompt-actions">
@@ -87,7 +90,7 @@ function BookingModal({ worker, onClose, onSuccess }) {
         
         <div className="modal-header">
           <h2>Book {worker.name}</h2>
-          <p>{worker.category} • ₹{worker.hourly_rate}/hr</p>
+          <p>{worker.category} • ₹{worker.daily_rate}/day</p>
         </div>
 
         {error && <div className="error-message">{error}</div>}

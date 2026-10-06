@@ -2,16 +2,21 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { API_URL } from '../config'
+import { useAuth } from '../context/AuthContext'
+import { Mail, Lock, LogIn } from 'lucide-react'
+import logo from '../assets/logo.png'
 import './Auth.css'
 
 function Login() {
-  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   })
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  
+  const navigate = useNavigate()
+  const { login, loginWithGoogle } = useAuth()
 
   const handleChange = (e) => {
     setFormData({
@@ -27,23 +32,64 @@ function Login() {
 
     try {
       const res = await axios.post(`${API_URL}/api/auth/login`, formData)
+      
+      localStorage.setItem('token', res.data.token)
       localStorage.setItem('user', JSON.stringify(res.data.user))
-      window.location.href = '/home' // Full reload to update navbar
-    } catch (err) {
-      setError(err.response?.data?.error || 'Login failed. Please try again.')
+      
+      if (res.data.user.role === 'admin') {
+        navigate('/admin/dashboard')
+      } else {
+        navigate('/user/dashboard')
+      }
+    } catch (error) {
+      setError(
+        error.response?.data?.message || 
+        'Login failed. Please check your credentials.'
+      )
     } finally {
       setLoading(false)
     }
   }
 
-  const handleSocialLogin = (provider) => {
-    alert(`${provider} login coming soon!`)
+  const handleSocialLogin = async (provider) => {
+    if (provider === 'Google') {
+      try {
+        setLoading(true)
+        setError('')
+        
+        const result = await loginWithGoogle()
+        const user = result.user
+        
+        const res = await axios.post(`${API_URL}/api/auth/google`, {
+          name: user.displayName,
+          email: user.email,
+          photo_url: user.photoURL
+        })
+        
+        localStorage.setItem('token', res.data.token)
+        localStorage.setItem('user', JSON.stringify(res.data.user))
+        
+        if (res.data.user.role === 'admin') {
+          navigate('/admin/dashboard')
+        } else {
+          navigate('/user/dashboard')
+        }
+      } catch (error) {
+        console.error('Google Auth Error:', error)
+        setError('Failed to authenticate with Google')
+      } finally {
+        setLoading(false)
+      }
+    } else {
+      alert(`${provider} login coming soon!`)
+    }
   }
 
   return (
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-header">
+          <img src={logo} alt="WorkerHub Logo" className="auth-logo" />
           <h1>Welcome Back</h1>
           <p>Login to continue booking workers</p>
         </div>
